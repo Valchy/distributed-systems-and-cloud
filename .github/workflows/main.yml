@@ -36,7 +36,6 @@ jobs:
                   ssh-private-key: ${{ secrets.VM_KEY }}
 
             - name: Run SSH command on production VM
-              if: ${{ github.ref == 'refs/heads/main' }}
               uses: appleboy/ssh-action@master
               with:
                   host: 3.70.216.70
@@ -48,18 +47,20 @@ jobs:
                       sudo git pull
                       sudo npm install
                       sudo pm2 stop all
-                      pm2 start load-balancer.js
-                      pm2 start -f index.js -- 4001
-                      pm2 start -f index.js -- 4002
-                      pm2 start -f index.js -- 4003
-                      pm2 start -f index.js -- 4004
-                      pm2 start -f index.js -- 4005
+                      sudo pm2 start load-balancer.js
+                      sudo pm2 start -f index.js -- 4001
+                      sudo pm2 start -f index.js -- 4002
+                      sudo pm2 start -f index.js -- 4003
+                      sudo pm2 start -f index.js -- 4004
+                      sudo pm2 start -f index.js -- 4005
                       sudo pm2 save
                       sudo pm2 startup
 
             - name: Sleep three seconds
               run: sleep 3s
 
-            - name: API Healthcheck for production
-              if: ${{ github.ref == 'refs/heads/main' }}
+            - name: Healthcheck for load balancer
+              run: curl --silent http://3.70.216.70/load-balancer-health-check
+
+            - name: API Healthcheck
               run: curl --silent http://3.70.216.70/

@@ -5,6 +5,11 @@ const port = 4000;
 const load_balancer_config = ['http://localhost:4001', 'http://localhost:4002', 'http://localhost:4003', 'http://localhost:4004', 'http://localhost:4005'];
 let loadBalancerCounter = 0;
 
+// Health check for load balancer
+app.get('/load-balancer-health-check', (req, res) => {
+	res.send('OK');
+});
+
 // Catch all requests and distribute load
 app.get('*', (req, res) => {
 	// Pass all headers to the redirect destination
