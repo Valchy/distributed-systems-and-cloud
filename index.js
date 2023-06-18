@@ -32,6 +32,13 @@ app.get('/api/favourite-drinks-leaderboard', middleware, (req, res) => {
 	res.json({ data: { top3 } });
 });
 
+// Show API endpoints to any other route
+app.get('*', (req, res) => {
+	res.json({
+		api_routes: ['GET /api/favourite-drink', 'GET /api/favourite-drinks-leaderboard', 'POST /api/favourite-drink']
+	});
+});
+
 // Start the server
 app.listen(port, () => {
 	console.log(`Server running on port http://localhost:${port}`);
