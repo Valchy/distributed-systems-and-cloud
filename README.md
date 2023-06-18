@@ -1,5 +1,7 @@
 # node-distributed-system-and-cloud
 
+Fun coffee app built in Harbour Space university to demonstrate a variety of skills.
+
 ## Server configuration steps
 
 1. SSH into server, make sure your public and private key are set up correct
