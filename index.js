@@ -18,27 +18,27 @@ function middleware(req, res, next) {
 // Endpoint to get favourite drink
 app.get('/api/favourite-drink', middleware, (req, res) => {
 	const favouriteDrink = 'espresso';
-	res.json({ data: { favouriteCoffee: favouriteDrink }, host: req.url.host });
+	res.json({ data: { favouriteCoffee: favouriteDrink }, host: `${req.protocol}://${req.get('host')}` });
 });
 
 // Endpoint to post favourite drink
 app.post('/api/favourite-drink', middleware, (req, res) => {
 	const top3 = req.body.data.top3;
 	console.log('Received top 3 drinks:', top3);
-	res.json({ message: 'Favourite drink posted successfully', host: req.url.host });
+	res.json({ message: 'Favourite drink posted successfully', host: `${req.protocol}://${req.get('host')}` });
 });
 
 // Endpoint to get leaderboard of favourite drinks
 app.get('/api/favourite-drinks-leaderboard', middleware, (req, res) => {
 	const top3 = ['espresso', 'cappuccino', 'latte'];
-	res.json({ data: { top3 }, host: req.url.host });
+	res.json({ data: { top3 }, host: `${req.protocol}://${req.get('host')}` });
 });
 
 // Show API endpoints to any other route
 app.get('*', (req, res) => {
 	res.json({
 		api_routes: ['GET /api/favourite-drink', 'GET /api/favourite-drinks-leaderboard', 'POST /api/favourite-drink'],
-		host: req.url.host
+		host: `${req.protocol}://${req.get('host')}`
 	});
 });
 
