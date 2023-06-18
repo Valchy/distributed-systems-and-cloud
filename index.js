@@ -11,7 +11,7 @@ function middleware(req, res, next) {
 	// Check authorization header
 	const authHeader = req.headers.authorization;
 
-	if (authHeader !== 'jesting') res.status(401).json({ error: 'Unauthorized' });
+	if (authHeader !== 'jesting') res.status(401).json({ error: 'Unauthorized -> provide header authorization!' });
 	else next();
 }
 
