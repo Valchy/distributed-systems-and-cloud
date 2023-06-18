@@ -7,7 +7,7 @@ let loadBalancerCounter = 0;
 
 // Catch all requests and distribute load
 app.get('*', (req, res) => {
-	res.redirect(302, `${load_balancer_config[loadBalancerCounter % 5]}/${req.path}`);
+	res.redirect(302, `${load_balancer_config[loadBalancerCounter % 5]}${req.path}`);
 	loadBalancerCounter++;
 });
 
