@@ -1,0 +1,59 @@
+name: Pipeline Exam
+
+on:
+    push:
+        branches:
+            - '*'
+    pull_request:
+        branches:
+            - '*'
+
+jobs:
+    build_staging:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v2
+              with:
+                  node-version: 22
+
+            - name: Check node version
+              run: node -v
+
+            - name: Install dependencies
+              run: npm install
+
+            - name: Test application
+              run: node --test
+
+            - name: Set up SSH key
+              uses: webfactory/ssh-agent@v0.5.3
+              with:
+                  ssh-private-key: ${{ secrets.VM_KEY }}
+
+            - name: Run SSH command on production VM
+              if: ${{ github.ref == 'refs/heads/main' }}
+              uses: appleboy/ssh-action@master
+              with:
+                  host: 3.70.216.70
+                  username: root
+                  key: ${{ secrets.VM_KEY }}
+                  script: |
+                      npm install pm2 -g
+                      git pull
+                      pm2 stop index.js
+                      npm install
+                      pm2 start index.js
+                      pm2 save
+                      pm2 startup
+
+            - name: Sleep three seconds
+              run: sleep 3s
+
+            - name: API Healthcheck for production
+              if: ${{ github.ref == 'refs/heads/main' }}
+              run: curl --silent http://3.70.216.70/api
