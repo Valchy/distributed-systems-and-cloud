@@ -7,6 +7,12 @@ let loadBalancerCounter = 0;
 
 // Catch all requests and distribute load
 app.get('*', (req, res) => {
+	// Pass all headers to the redirect destination
+	Object.keys(req.headers).forEach(header => {
+		res.setHeader(header, req.headers[header]);
+	});
+
+	// Doing redirect
 	res.redirect(302, `${load_balancer_config[loadBalancerCounter % 5]}${req.path}`);
 	loadBalancerCounter++;
 });
