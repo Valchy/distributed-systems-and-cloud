@@ -47,8 +47,13 @@ jobs:
                       sudo npm install pm2 -g
                       sudo git pull
                       sudo npm install
-                      sudo pm2 stop index.js
-                      sudo pm2 start index.js
+                      sudo pm2 stop all
+                      pm2 start laod-balancer.js
+                      pm2 start index.js -- 4001
+                      pm2 start index.js -- 4002
+                      pm2 start index.js -- 4003
+                      pm2 start index.js -- 4004
+                      pm2 start index.js -- 4005
                       sudo pm2 save
                       sudo pm2 startup
 
