@@ -1,15 +1,15 @@
-name: Pipeline Exam
+name: CoffeeApp Build Pipeline
 
 on:
     push:
         branches:
-            - '*'
+            - 'main'
     pull_request:
         branches:
-            - '*'
+            - 'main'
 
 jobs:
-    build_staging:
+    pipeline:
         runs-on: ubuntu-latest
 
         steps:
@@ -19,7 +19,7 @@ jobs:
             - name: Set up Node.js
               uses: actions/setup-node@v2
               with:
-                  node-version: 22
+                  node-version: 20
 
             - name: Check node version
               run: node -v
@@ -40,13 +40,13 @@ jobs:
               uses: appleboy/ssh-action@master
               with:
                   host: 3.70.216.70
-                  username: root
+                  username: ubuntu
                   key: ${{ secrets.VM_KEY }}
                   script: |
                       npm install pm2 -g
                       git pull
-                      pm2 stop index.js
                       npm install
+                      pm2 stop index.js
                       pm2 start index.js
                       pm2 save
                       pm2 startup
@@ -56,4 +56,4 @@ jobs:
 
             - name: API Healthcheck for production
               if: ${{ github.ref == 'refs/heads/main' }}
-              run: curl --silent http://3.70.216.70/api
+              run: curl --silent http://3.70.216.70/
