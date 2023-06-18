@@ -43,13 +43,14 @@ jobs:
                   username: ubuntu
                   key: ${{ secrets.VM_KEY }}
                   script: |
-                      npm install pm2 -g
-                      git pull
-                      npm install
-                      pm2 stop index.js
-                      pm2 start index.js
-                      pm2 save
-                      pm2 startup
+                      cd coffee-app
+                      sudo npm install pm2 -g
+                      sudo git pull
+                      sudo npm install
+                      sudo pm2 stop index.js
+                      sudo pm2 start index.js
+                      sudo pm2 save
+                      sudo pm2 startup
 
             - name: Sleep three seconds
               run: sleep 3s
