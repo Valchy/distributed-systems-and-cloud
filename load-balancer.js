@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const port = 4000;
 
-const load_balancer_config = ['http://localhost:4001', 'http://localhost:4002', 'http://localhost:4003', 'http://localhost:4004', 'http://localhost:4005'];
+const load_balancer_config = ['http://18.195.253.24', 'http://3.73.56.149'];
 let loadBalancerCounter = 0;
 
 // Catch all requests and distribute load
@@ -16,7 +16,7 @@ app.get('*', (req, res) => {
 	});
 
 	// Doing redirect
-	res.redirect(302, `${load_balancer_config[loadBalancerCounter % 5]}${req.path}`);
+	res.redirect(302, `${load_balancer_config[loadBalancerCounter % load_balancer_config.length]}${req.path}`);
 	loadBalancerCounter++;
 });
 

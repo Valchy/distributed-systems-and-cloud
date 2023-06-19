@@ -35,7 +35,7 @@ jobs:
               with:
                   ssh-private-key: ${{ secrets.VM_KEY }}
 
-            - name: Run SSH command on production VM
+            - name: Run SSH command on load balancer
               uses: appleboy/ssh-action@master
               with:
                   host: 3.70.216.70
@@ -49,11 +49,40 @@ jobs:
                       sudo pm2 stop all
                       sudo pm2 delete all
                       sudo pm2 start -f load-balancer.js --name load-balancer
-                      sudo pm2 start -f index.js --name coffee-app-1 -- 4001
-                      sudo pm2 start -f index.js --name coffee-app-2 -- 4002
-                      sudo pm2 start -f index.js --name coffee-app-3 -- 4003
-                      sudo pm2 start -f index.js --name coffee-app-4 -- 4004
-                      sudo pm2 start -f index.js --name coffee-app-5 -- 4005
+                      sudo pm2 save
+                      sudo pm2 startup
+
+            - name: Run SSH command on first server
+              uses: appleboy/ssh-action@master
+              with:
+                  host: 18.195.253.24
+                  username: ubuntu
+                  key: ${{ secrets.VM_KEY }}
+                  script: |
+                      cd coffee-app
+                      sudo npm install pm2 -g
+                      sudo git pull
+                      sudo npm install
+                      sudo pm2 stop all
+                      sudo pm2 delete all
+                      sudo pm2 start -f index.js --name coffee-app
+                      sudo pm2 save
+                      sudo pm2 startup
+
+            - name: Run SSH command on second server
+              uses: appleboy/ssh-action@master
+              with:
+                  host: 3.73.56.149
+                  username: ubuntu
+                  key: ${{ secrets.VM_KEY }}
+                  script: |
+                      cd coffee-app
+                      sudo npm install pm2 -g
+                      sudo git pull
+                      sudo npm install
+                      sudo pm2 stop all
+                      sudo pm2 delete all
+                      sudo pm2 start -f index.js --name coffee-app
                       sudo pm2 save
                       sudo pm2 startup
 
@@ -63,5 +92,8 @@ jobs:
             - name: Healthcheck for load balancer
               run: curl --silent http://3.70.216.70/load-balancer-health-check
 
-            - name: API Healthcheck
-              run: curl --silent http://3.70.216.70/
+            - name: API Healthcheck Server One
+              run: curl --silent http://18.195.253.24/
+
+            - name: API Healthcheck Server Two
+              run: curl --silent http://3.73.56.149/
