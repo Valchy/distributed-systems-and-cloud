@@ -11,22 +11,50 @@ services:
         ports:
             - 5432:5432
 
-    api:
+    api_1:
         build:
             context: .
             dockerfile: Dockerfile
         ports:
             - 4001:4001
-            - 4002:4002
-            - 4003:4003
         depends_on:
             - database
         environment:
+            - APP_PORT=4001
             - DB_HOST=database
             - DB_USER=super_admin
             - DB_PASSWORD=SomeSecretPassword
             - DB_NAME=coffee-app
-        scale: 3
+
+    api_2:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - 4002:4002
+        depends_on:
+            - database
+        environment:
+            - APP_PORT=4002
+            - DB_HOST=database
+            - DB_USER=super_admin
+            - DB_PASSWORD=SomeSecretPassword
+            - DB_NAME=coffee-app
+
+    api_3:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - 4003:4003
+        depends_on:
+            - database
+        environment:
+            - APP_PORT=4003
+            - DB_HOST=database
+            - DB_USER=super_admin
+            - DB_PASSWORD=SomeSecretPassword
+            - DB_NAME=coffee-app
 
     load_balancer:
         build:
@@ -35,4 +63,6 @@ services:
         ports:
             - 4000:4000
         depends_on:
-            - api
+            - api_1
+            - api_2
+            - api_3
