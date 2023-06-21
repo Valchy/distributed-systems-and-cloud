@@ -7,7 +7,7 @@ let loadBalancerCounter = 0;
 
 if (load_balancer_config.length === 0) {
 	return console.log('Please provide load balance hosts\nExample: node load-balancer.js http://18.195.253.24 http://3.73.56.149');
-}
+} else console.log('Load balancer started with given config:\n', load_balancer_config);
 
 // Catch all requests and distribute load
 app.get('*', (req, res) => {

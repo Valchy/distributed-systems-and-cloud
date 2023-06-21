@@ -20,6 +20,7 @@ services:
         depends_on:
             - database
         environment:
+            - BACKEND_SERVER="bob"
             - APP_PORT=4001
             - DB_HOST=database
             - DB_USER=super_admin
@@ -35,6 +36,7 @@ services:
         depends_on:
             - database
         environment:
+            - BACKEND_SERVER="bob"
             - APP_PORT=4002
             - DB_HOST=database
             - DB_USER=super_admin
@@ -50,6 +52,7 @@ services:
         depends_on:
             - database
         environment:
+            - BACKEND_SERVER="bob"
             - APP_PORT=4003
             - DB_HOST=database
             - DB_USER=super_admin
