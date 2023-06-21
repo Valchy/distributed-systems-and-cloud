@@ -2,8 +2,12 @@ const express = require('express');
 const app = express();
 const port = 4000;
 
-const load_balancer_config = ['http://18.195.253.24', 'http://3.73.56.149'];
+const load_balancer_config = process.argv.slice(2);
 let loadBalancerCounter = 0;
+
+if (load_balancer_config.length === 0) {
+	return console.log('Please provide load balance hosts\nExample: node load-balancer.js http://18.195.253.24 http://3.73.56.149');
+}
 
 // Catch all requests and distribute load
 app.get('*', (req, res) => {

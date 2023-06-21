@@ -6,4 +6,4 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 
-CMD ["node", "load-balancer.js"]
+CMD ["node", "load-balancer.js", "http://18.195.253.24", "http://3.73.56.149"]

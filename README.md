@@ -2,6 +2,11 @@
 
 Fun coffee app built in Harbour Space university to demonstrate a variety of skills.
 
+## Load Balancer
+
+To run the load balancer please provide it some hosts such as:
+`node load-balancer.js http://18.195.253.24 http://3.73.56.149`
+
 ## Server configuration steps
 
 1. SSH into server, make sure your public and private key are set up correct
