@@ -1,0 +1,34 @@
+version: '3'
+services:
+    database:
+        image: postgres
+        volumes:
+            - ./data:/var/lib/postgresql/data
+        environment:
+            - POSTGRES_USER=super_admin
+            - POSTGRES_PASSWORD=SomeSecretPassword
+            - POSTGRES_DB=coffee-app
+        ports:
+            - 5432:5432
+
+    web:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - 4444:4444
+        depends_on:
+            - database
+        environment:
+            - DB_HOST=database
+            - DB_USER=super_admin
+            - DB_PASSWORD=SomeSecretPassword
+            - DB_NAME=coffee-app
+
+    load_balancer:
+        image: node
+        command: node load-balancer.js
+        ports:
+            - 80:80
+        depends_on:
+            - web
