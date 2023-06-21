@@ -31,4 +31,4 @@ services:
         ports:
             - 80
         depends_on:
-            - web
+            - api
