@@ -1,71 +1,43 @@
 version: '3'
 services:
-    database:
-        image: postgres
+    mysql_db:
+        image: mysql:latest
+        container_name: mysql_db
+        environment:
+            - MYSQL_ROOT_PASSWORD=coffee-app
+            - MYSQL_DATABASE=coffee-app
+            - MYSQL_USER=coffee-app
+            - MYSQL_PASSWORD=coffee-app
+        ports:
+            - 3307:3307
         volumes:
-            - ./data:/var/lib/postgresql/data
-        environment:
-            - POSTGRES_USER=super_admin
-            - POSTGRES_PASSWORD=SomeSecretPassword
-            - POSTGRES_DB=coffee-app
-        ports:
-            - 5432:5432
+            - ./mysql_db_data:/var/lib/mysql
 
-    api_1:
+    api:
         build:
             context: .
             dockerfile: Dockerfile
+        container_name: api
         ports:
-            - 4001:4001
+            - 4001:4444
+            - 4002:4444
+            - 4003:4444
         depends_on:
-            - database
+            - mysql_db
         environment:
-            - BACKEND_SERVER="bob"
-            - APP_PORT=4001
-            - DB_HOST=database
-            - DB_USER=super_admin
-            - DB_PASSWORD=SomeSecretPassword
-            - DB_NAME=coffee-app
-
-    api_2:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        ports:
-            - 4002:4002
-        depends_on:
-            - database
-        environment:
-            - BACKEND_SERVER="bob"
-            - APP_PORT=4002
-            - DB_HOST=database
-            - DB_USER=super_admin
-            - DB_PASSWORD=SomeSecretPassword
-            - DB_NAME=coffee-app
-
-    api_3:
-        build:
-            context: .
-            dockerfile: Dockerfile
-        ports:
-            - 4003:4003
-        depends_on:
-            - database
-        environment:
-            - BACKEND_SERVER="bob"
-            - APP_PORT=4003
-            - DB_HOST=database
-            - DB_USER=super_admin
-            - DB_PASSWORD=SomeSecretPassword
+            - DB_HOST=localhost
+            - DB_USER=coffee-app
+            - DB_PASSWORD=coffee-app
             - DB_NAME=coffee-app
 
     load_balancer:
         build:
             context: .
             dockerfile: Dockerfile-load-balancer
+        container_name: load_balancer
         ports:
             - 4000:4000
+        environment:
+            - HOSTS=http://localhost:4001,http://localhost:4002,http://localhost:4003
         depends_on:
-            - api_1
-            - api_2
-            - api_3
+            - api

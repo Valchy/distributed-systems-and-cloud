@@ -4,8 +4,7 @@ Fun coffee app built in Harbour Space university to demonstrate a variety of ski
 
 ## Load Balancer
 
-To run the load balancer please provide it some hosts such as:
-`node load-balancer.js http://18.195.253.24 http://3.73.56.149`
+To run the load balancer please provide it some hosts in the .env file as shown in .env.example
 
 ## Server configuration steps
 

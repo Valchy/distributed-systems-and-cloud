@@ -1,11 +1,11 @@
 require('dotenv').config();
 const express = require('express');
+
+const mysql_db = require('./database');
+mysql_db();
+
 const app = express();
-
-const port = process.env.APP_PORT || 4444;
-
-console.log('helllooooo');
-console.log(process.env);
+const port = 4444;
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
@@ -47,6 +47,5 @@ app.get('*', (req, res) => {
 
 // Start the server
 app.listen(port, () => {
-	console.log(process.env);
 	console.log(`Server running on port http://localhost:${port}`);
 });

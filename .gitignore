@@ -1,2 +1,4 @@
 node_modules
-data
+mysql_db_data
+.env
+.env

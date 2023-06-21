@@ -1,8 +1,10 @@
+require('dotenv').config();
 const express = require('express');
+
 const app = express();
 const port = 4000;
 
-const load_balancer_config = process.argv.slice(2);
+const load_balancer_config = process.env.HOSTS.split(',');
 let loadBalancerCounter = 0;
 
 if (load_balancer_config.length === 0) {
