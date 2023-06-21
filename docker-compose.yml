@@ -24,11 +24,13 @@ services:
             - DB_USER=super_admin
             - DB_PASSWORD=SomeSecretPassword
             - DB_NAME=coffee-app
+        scale: 3
 
     load_balancer:
-        image: node
-        command: node load-balancer.js
+        build:
+            context: .
+            dockerfile: Dockerfile-load-balancer
         ports:
-            - 80
+            - 4000:4000
         depends_on:
             - api
