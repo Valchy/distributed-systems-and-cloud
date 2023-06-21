@@ -11,7 +11,7 @@ services:
         ports:
             - 5432:5432
 
-    web:
+    api:
         build:
             context: .
             dockerfile: Dockerfile
@@ -29,6 +29,6 @@ services:
         image: node
         command: node load-balancer.js
         ports:
-            - 80:80
+            - 80
         depends_on:
             - web

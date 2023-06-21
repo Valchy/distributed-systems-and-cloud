@@ -1,13 +1,10 @@
-FROM alpine:latest
-
-RUN apk --no-cache add nodejs npm
+FROM node:18
 
 WORKDIR /coffee-app
 
-RUN apk --no-cache add git && git clone https://github.com/Valchy/distributed-systems-and-cloud.git
-
+COPY package*.json ./
 RUN npm install
+COPY . .
 
 EXPOSE 4444
-
 CMD ["node", "index.js"]
