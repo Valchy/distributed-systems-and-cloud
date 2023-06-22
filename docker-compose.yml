@@ -4,12 +4,12 @@ services:
         image: mysql:latest
         container_name: mysql_db
         environment:
-            - MYSQL_ROOT_PASSWORD=coffee-app
-            - MYSQL_DATABASE=coffee-app
-            - MYSQL_USER=coffee-app
-            - MYSQL_PASSWORD=coffee-app
+            - MYSQL_ROOT_PASSWORD=coffeeapp
+            - MYSQL_DATABASE=coffeeapp
+            - MYSQL_USER=coffeeapp
+            - MYSQL_PASSWORD=coffeeapp
         ports:
-            - 3307:3307
+            - 3306:3306
         volumes:
             - ./mysql_db_data:/var/lib/mysql
 
@@ -26,9 +26,8 @@ services:
             - mysql_db
         environment:
             - DB_HOST=localhost
-            - DB_USER=coffee-app
-            - DB_PASSWORD=coffee-app
-            - DB_NAME=coffee-app
+            - DB_USER=coffeeapp
+            - DB_PASSWORD=coffeeapp
 
     load_balancer:
         build:
@@ -38,6 +37,6 @@ services:
         ports:
             - 4000:4000
         environment:
-            - HOSTS=http://localhost:4001,http://localhost:4002,http://localhost:4003
+            - HOSTS=$HOSTS
         depends_on:
             - api

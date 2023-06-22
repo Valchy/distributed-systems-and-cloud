@@ -1,8 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 
-const mysql_db = require('./database');
-mysql_db();
+// API DB Functions
+const { getFavCoffee, getCoffeeLeaderboard, saveFavCoffee } = require('./database');
 
 const app = express();
 const port = 4444;
@@ -10,6 +10,7 @@ const port = 4444;
 // Middleware to parse JSON request bodies
 app.use(express.json());
 
+// Authorization middleware
 function middleware(req, res, next) {
 	// Check authorization header
 	const authHeader = req.headers.authorization;
@@ -18,29 +19,43 @@ function middleware(req, res, next) {
 	else next();
 }
 
-// Endpoint to get favourite drink
-app.get('/api/favourite-drink', middleware, (req, res) => {
-	const favouriteDrink = 'espresso';
-	res.json({ data: { favouriteCoffee: favouriteDrink }, host: `${req.protocol}://${req.get('host')}` });
+// Endpoint to get favourite coffee
+app.get('/api/favourite-coffee', middleware, (req, res) => {
+	getFavCoffee(favouriteCoffee => {
+		res.json({ data: { favouriteCoffee }, host: `${req.protocol}://${req.get('host')}` });
+	});
 });
 
-// Endpoint to post favourite drink
-app.post('/api/favourite-drink', middleware, (req, res) => {
-	const top3 = req.body.data.top3;
-	console.log('Received top 3 drinks:', top3);
-	res.json({ message: 'Favourite drink posted successfully', host: `${req.protocol}://${req.get('host')}` });
+// Endpoint to get leaderboard of favourite coffees
+app.get('/api/favourite-coffees-leaderboard', middleware, (req, res) => {
+	getCoffeeLeaderboard(coffeeLeaderboard => {
+		res.json({ data: { coffeeLeaderboard }, host: `${req.protocol}://${req.get('host')}` });
+	});
 });
 
-// Endpoint to get leaderboard of favourite drinks
-app.get('/api/favourite-drinks-leaderboard', middleware, (req, res) => {
-	const top3 = ['espresso', 'cappuccino', 'latte'];
-	res.json({ data: { top3 }, host: `${req.protocol}://${req.get('host')}` });
+// Endpoint to post favourite coffee
+app.post('/api/favourite-coffee', middleware, (req, res) => {
+	const favCoffee = req.body.data.favCoffee;
+
+	// Error handling
+	if (!favCoffee) return res.status(400).json({ error: 'No favourite coffee provided!', host: `${req.protocol}://${req.get('host')}` });
+
+	// Save favourite coffee to db
+	saveFavCoffee(favCoffee, saveSuccess => {
+		// Return success / failure json
+		if (saveSuccess) res.json({ message: `Favourite coffee "${favCoffee}" posted successfully`, host: `${req.protocol}://${req.get('host')}` });
+		else res.status(400).json({ error: 'Problem saving favourite coffee', host: `${req.protocol}://${req.get('host')}` });
+	});
 });
 
 // Show API endpoints to any other route
 app.get('*', (req, res) => {
 	res.json({
-		api_routes: ['GET /api/favourite-drink', 'GET /api/favourite-drinks-leaderboard', 'POST /api/favourite-drink'],
+		api_routes: [
+			'GET /api/favourite-coffee',
+			'GET /api/favourite-coffees-leaderboard',
+			'POST /api/favourite-coffee (body: { data: { favCoffee :"coffee string" } })'
+		],
 		host: `${req.protocol}://${req.get('host')}`
 	});
 });

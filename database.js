@@ -4,55 +4,93 @@ const mysql = require('mysql2');
 const connection = mysql.createConnection({
 	host: process.env.DB_HOST,
 	user: process.env.DB_USER,
-	password: process.env.DB_PASSWORD,
-	database: process.env.DB_NAME
+	password: process.env.DB_PASSWORD
 });
 
-// Connect to the MySQL server
-module.exports = () =>
-	connection.connect(err => {
-		if (err) {
-			console.error('Error connecting to the database:', err);
-			return;
-		}
-		console.log('Connected to the database');
+// By default run db and table create
+connection.connect(err => {
+	if (err) return console.error('Error connecting to the database:', err);
+	else console.log('Connected to database');
 
-		// Create the database if it doesn't exist
-		connection.query('CREATE DATABASE IF NOT EXISTS coffee-app', err => {
-			if (err) {
-				console.error('Error creating the database:', err);
-				connection.end();
-				return;
-			}
-			console.log('Database "coffee-app" created or already exists');
+	// Create the database if it doesn't exist
+	connection.query('CREATE DATABASE IF NOT EXISTS coffeeapp', err => {
+		if (err) return console.error('Error creating the database:', err);
+		else console.log('Database coffeeapp created or already exists');
 
-			// Switch to the coffee-app database
-			connection.query('USE coffee-app', err => {
-				if (err) {
-					console.error('Error switching to the "coffee-app" database:', err);
-					connection.end();
-					return;
-				}
-				console.log('Using "coffee-app" database');
+		// Switch to the coffeeapp database
+		connection.query('USE coffeeapp', err => {
+			if (err) return console.error('Error switching to the coffeeapp database:', err);
+			else console.log('Using "coffeeapp" database');
 
-				// Create the "favourite_drinks" table if it doesn't exist
-				const createTableQuery = `
-				CREATE TABLE IF NOT EXISTS favourite_drinks (
+			// Create the "favourite_coffee" table if it doesn't exist
+			const createTableQuery = `
+				CREATE TABLE IF NOT EXISTS favourite_coffee (
 					id INT PRIMARY KEY AUTO_INCREMENT,
-					drink_name VARCHAR(255) NOT NULL,
-					rating INT NOT NULL
+					coffee_name VARCHAR(255) NOT NULL
 				)
 			`;
-				connection.query(createTableQuery, err => {
-					if (err) {
-						console.error('Error creating the "favourite_drinks" table:', err);
-					} else {
-						console.log('Table "favourite_drinks" created or already exists');
-					}
 
-					// Close the database connection
-					connection.end();
-				});
+			connection.query(createTableQuery, err => {
+				if (err) console.error('Error creating the "favourite_coffee" table:', err);
+				else console.log('Table "favourite_coffee" created or already exists');
 			});
 		});
 	});
+});
+
+function getAllCoffee(callback) {
+	connection.query('SELECT * FROM favourite_coffee', (err, results) => {
+		if (err) {
+			console.error('Error executing the query:', err);
+			return callback([]);
+		}
+
+		let coffees = {};
+		results.forEach(({ coffee_name }) => {
+			coffees[coffee_name] = (coffees[coffee_name] || 0) + 1;
+		});
+
+		// Return the coffeeeees
+		return callback(coffees);
+	});
+}
+
+async function getFavCoffee(callback) {
+	getAllCoffee(coffees => {
+		if (Object.keys(coffees).length === 0) return callback('There are no favourite coffees');
+
+		let coffee = '';
+		let votes = 0;
+
+		for (const [key, value] of Object.entries(coffees)) {
+			if (value > votes) {
+				coffee = key;
+				votes = value;
+			}
+		}
+
+		callback(`${coffee} with ${votes} votes`);
+	});
+}
+
+async function getCoffeeLeaderboard(callback) {
+	getAllCoffee(coffees => {
+		callback(coffees);
+	});
+}
+
+function saveFavCoffee(coffee_name, callback) {
+	connection.query('INSERT INTO favourite_coffee SET ?', { coffee_name }, err => {
+		if (err) {
+			console.error('Error executing the query:', err);
+			return callback(false);
+		} else callback(true);
+	});
+}
+
+// Connect to the MySQL server
+module.exports = {
+	getFavCoffee,
+	getCoffeeLeaderboard,
+	saveFavCoffee
+};
