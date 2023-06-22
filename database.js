@@ -17,22 +17,35 @@ connection.connect(err => {
 		if (err) return console.error('Error creating the database:', err);
 		else console.log('Database coffeeapp created or already exists');
 
-		// Switch to the coffeeapp database
+		// Switch to coffeeapp database
 		connection.query('USE coffeeapp', err => {
 			if (err) return console.error('Error switching to the coffeeapp database:', err);
 			else console.log('Using "coffeeapp" database');
 
-			// Create the "favourite_coffee" table if it doesn't exist
-			const createTableQuery = `
+			// Create "favourite_coffee" table if it doesn't exist
+			const createCoffeeTableQuery = `
 				CREATE TABLE IF NOT EXISTS favourite_coffee (
 					id INT PRIMARY KEY AUTO_INCREMENT,
 					coffee_name VARCHAR(255) NOT NULL
 				)
 			`;
 
-			connection.query(createTableQuery, err => {
+			connection.query(createCoffeeTableQuery, err => {
 				if (err) console.error('Error creating the "favourite_coffee" table:', err);
 				else console.log('Table "favourite_coffee" created or already exists');
+			});
+
+			// Create "users" table if it doesn't exist
+			const createUsersTableQuery = `
+				CREATE TABLE IF NOT EXISTS users (
+					id INT PRIMARY KEY AUTO_INCREMENT,
+					user VARCHAR(255) NOT NULL
+				)
+			`;
+
+			connection.query(createUsersTableQuery, err => {
+				if (err) console.error('Error creating the "users" table:', err);
+				else console.log('Table "users" created or already exists');
 			});
 		});
 	});
@@ -88,9 +101,19 @@ function saveFavCoffee(coffee_name, callback) {
 	});
 }
 
+function createUser(user, callback) {
+	connection.query('INSERT INTO users SET ?', { user }, err => {
+		if (err) {
+			console.error('Error executing the query:', err);
+			callback(false);
+		} else callback(true);
+	});
+}
+
 // Connect to the MySQL server
 module.exports = {
 	getFavCoffee,
 	getCoffeeLeaderboard,
-	saveFavCoffee
+	saveFavCoffee,
+	createUser
 };

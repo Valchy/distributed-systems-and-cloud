@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 
 // API DB Functions
-const { getFavCoffee, getCoffeeLeaderboard, saveFavCoffee } = require('./database');
+const { getFavCoffee, getCoffeeLeaderboard, saveFavCoffee, createUser } = require('./database');
 
 const app = express();
 const port = 4444;
@@ -48,13 +48,28 @@ app.post('/api/favourite-coffee', middleware, (req, res) => {
 	});
 });
 
+// Create User Endpoint
+app.post('/api/createUser', middleware, (req, res) => {
+	const user = req.body.data.user;
+
+	// Error handling
+	if (!user) return res.status(400).json({ error: 'No user was provided!', host: `${req.protocol}://${req.get('host')}` });
+
+	createUser(user, saveSuccess => {
+		// Return success / failure json
+		if (saveSuccess) res.json({ message: 'User created successfully', host: `${req.protocol}://${req.get('host')}` });
+		else res.status(400).json({ error: 'Problem saving user', host: `${req.protocol}://${req.get('host')}` });
+	});
+});
+
 // Show API endpoints to any other route
 app.get('*', (req, res) => {
 	res.json({
 		api_routes: [
 			'GET /api/favourite-coffee',
 			'GET /api/favourite-coffees-leaderboard',
-			'POST /api/favourite-coffee (body: { data: { favCoffee :"coffee string" } })'
+			'POST /api/favourite-coffee (body: { data: { favCoffee :"coffee string" } })',
+			'POST /api/createUser (body: { data: { user :"some name" } })'
 		],
 		host: `${req.protocol}://${req.get('host')}`
 	});
