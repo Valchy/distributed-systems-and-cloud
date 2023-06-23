@@ -71,8 +71,8 @@ app.get('*', (req, res) => {
 		api_routes: [
 			'GET /api/favourite-coffee',
 			'GET /api/favourite-coffees-leaderboard',
-			'POST /api/favourite-coffee (body: { data: { favCoffee :"coffee string" } })',
-			'POST /api/createUser (body: { data: { user :"some name" } })'
+			'POST /api/favourite-coffee (body: { data: { favCoffee: "coffee string" } })',
+			'POST /api/createUser (body: { data: { user: "some name" } })'
 		],
 		host: `${req.protocol}://${req.get('host')}`
 	});
