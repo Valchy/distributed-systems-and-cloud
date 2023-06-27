@@ -1,5 +1,6 @@
 require('dotenv').config();
 const express = require('express');
+const rateLimit = require('express-rate-limit');
 
 // API DB Functions
 const { getFavCoffee, getCoffeeLeaderboard, saveFavCoffee } = require('./database');
@@ -30,26 +31,47 @@ app.get('/api/favourite-coffee', middleware, (req, res) => {
 });
 
 // Endpoint to get leaderboard of favourite coffees
-app.get('/api/favourite-coffees-leaderboard', middleware, (req, res) => {
-	getCoffeeLeaderboard(coffeeLeaderboard => {
-		res.json({ data: { coffeeLeaderboard }, host: `${req.protocol}://${req.get('host')}` });
-	});
-});
+app.get(
+	'/api/favourite-coffees-leaderboard',
+	rateLimit({
+		windowMs: 1 * 60 * 1000, // Fixed window for 1 minute
+		max: 3, // Limit each IP to 100 requests per window
+		keyGenerator: req => req.headers['authorization'] || req.ip, // Per user
+		standardHeaders: true, // Return rate limit info in the RateLimit-* headers
+		legacyHeaders: false // Disable the X-RateLimit-* headers
+	}),
+	middleware,
+	(req, res) => {
+		getCoffeeLeaderboard(coffeeLeaderboard => {
+			res.json({ data: { coffeeLeaderboard }, host: `${req.protocol}://${req.get('host')}` });
+		});
+	}
+);
 
 // Endpoint to post favourite coffee
-app.post('/api/favourite-coffee', middleware, (req, res) => {
-	const favCoffee = req.body.data.favCoffee;
+app.post(
+	'/api/favourite-coffee',
+	rateLimit({
+		windowMs: 1 * 60 * 1000, // Fixed window for 1 minute
+		max: 10, // Limit each IP to 100 requests per window
+		standardHeaders: true, // Return rate limit info in the RateLimit-* headers
+		legacyHeaders: false // Disable the X-RateLimit-* headers
+	}),
+	middleware,
+	(req, res) => {
+		const favCoffee = req.body.data.favCoffee;
 
-	// Error handling
-	if (!favCoffee) return res.status(400).json({ error: 'No favourite coffee provided!', host: `${req.protocol}://${req.get('host')}` });
+		// Error handling
+		if (!favCoffee) return res.status(400).json({ error: 'No favourite coffee provided!', host: `${req.protocol}://${req.get('host')}` });
 
-	// Save favourite coffee to db
-	saveFavCoffee(favCoffee, saveSuccess => {
-		// Return success / failure json
-		if (saveSuccess) res.json({ message: `Favourite coffee "${favCoffee}" posted successfully`, host: `${req.protocol}://${req.get('host')}` });
-		else res.status(400).json({ error: 'Problem saving favourite coffee', host: `${req.protocol}://${req.get('host')}` });
-	});
-});
+		// Save favourite coffee to db
+		saveFavCoffee(favCoffee, saveSuccess => {
+			// Return success / failure json
+			if (saveSuccess) res.json({ message: `Favourite coffee "${favCoffee}" posted successfully`, host: `${req.protocol}://${req.get('host')}` });
+			else res.status(400).json({ error: 'Problem saving favourite coffee', host: `${req.protocol}://${req.get('host')}` });
+		});
+	}
+);
 
 // Create User Endpoint
 app.post('/api/createUser', middleware, (req, res) => {
