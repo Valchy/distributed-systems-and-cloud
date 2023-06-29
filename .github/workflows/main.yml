@@ -30,70 +30,36 @@ jobs:
             - name: Test application
               run: node --test
 
-            - name: Set up SSH key
-              uses: webfactory/ssh-agent@v0.5.3
-              with:
-                  ssh-private-key: ${{ secrets.VM_KEY }}
+            # - name: Set up SSH key
+            #   uses: webfactory/ssh-agent@v0.5.3
+            #   with:
+            #       ssh-private-key: ${{ secrets.VM_KEY }}
 
-            - name: Run SSH command on load balancer
-              uses: appleboy/ssh-action@master
-              with:
-                  host: 3.70.216.70
-                  username: ubuntu
-                  key: ${{ secrets.VM_KEY }}
-                  script: |
-                      cd coffee-app
-                      sudo npm install pm2 -g
-                      sudo git pull
-                      sudo npm install
-                      sudo pm2 stop all
-                      sudo pm2 delete all
-                      sudo pm2 start -f load-balancer.js --name load-balancer
-                      sudo pm2 save
-                      sudo pm2 startup
+            # - name: Run SSH command on load balancer
+            #   uses: appleboy/ssh-action@master
+            #   with:
+            #       host: 3.70.216.70
+            #       username: ubuntu
+            #       key: ${{ secrets.VM_KEY }}
+            #       script: |
+            #           cd coffee-app
+            #           sudo npm install pm2 -g
+            #           sudo git pull
+            #           sudo npm install
+            #           sudo pm2 stop all
+            #           sudo pm2 delete all
+            #           sudo pm2 start -f load-balancer.js --name load-balancer
+            #           sudo pm2 save
+            #           sudo pm2 startup
 
-            - name: Run SSH command on first server
-              uses: appleboy/ssh-action@master
-              with:
-                  host: 18.195.253.24
-                  username: ubuntu
-                  key: ${{ secrets.VM_KEY }}
-                  script: |
-                      cd coffee-app
-                      sudo npm install pm2 -g
-                      sudo git pull
-                      sudo npm install
-                      sudo pm2 stop all
-                      sudo pm2 delete all
-                      sudo pm2 start -f index.js --name coffee-app
-                      sudo pm2 save
-                      sudo pm2 startup
+            # - name: Sleep three seconds
+            #   run: sleep 3s
 
-            - name: Run SSH command on second server
-              uses: appleboy/ssh-action@master
-              with:
-                  host: 3.73.56.149
-                  username: ubuntu
-                  key: ${{ secrets.VM_KEY }}
-                  script: |
-                      cd coffee-app
-                      sudo npm install pm2 -g
-                      sudo git pull
-                      sudo npm install
-                      sudo pm2 stop all
-                      sudo pm2 delete all
-                      sudo pm2 start -f index.js --name coffee-app
-                      sudo pm2 save
-                      sudo pm2 startup
+            # - name: Healthcheck for load balancer
+            #   run: curl --silent http://3.70.216.70/load-balancer-health-check
 
-            - name: Sleep three seconds
-              run: sleep 3s
+            # - name: API Healthcheck Server One
+            #   run: curl --silent http://18.195.253.24/
 
-            - name: Healthcheck for load balancer
-              run: curl --silent http://3.70.216.70/load-balancer-health-check
-
-            - name: API Healthcheck Server One
-              run: curl --silent http://18.195.253.24/
-
-            - name: API Healthcheck Server Two
-              run: curl --silent http://3.73.56.149/
+            # - name: API Healthcheck Server Two
+            #   run: curl --silent http://3.73.56.149/
