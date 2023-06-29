@@ -1,15 +1,26 @@
 require('dotenv').config();
 const express = require('express');
+const s3 = require('./s3');
 
 const app = express();
 const port = 4000;
 
-const load_balancer_config = process.env.HOSTS.split(',');
+// Get configuration from S3 bucket or use .env as backup
+let load_balancer_config;
 let loadBalancerCounter = 0;
+(async () => {
+	try {
+		const jsonData = await s3();
+		load_balancer_config = jsonData.hosts;
 
-if (load_balancer_config.length === 0) {
-	return console.log('Please provide load balance hosts\nExample: node load-balancer.js http://18.195.253.24 http://3.73.56.149');
-} else console.log('Load balancer started with given config:\n', load_balancer_config);
+		if (load_balancer_config.length === 0) {
+			return console.log('Please provide load balance hosts\nExample: node load-balancer.js http://18.195.253.24 http://3.73.56.149');
+		} else console.log('Load balancer started with given config:\n', load_balancer_config);
+	} catch (err) {
+		console.log('S3 error occured and default .env hosts were used!');
+		load_balancer_config = process.env.HOSTS.split(',');
+	}
+})();
 
 // Catch all requests and distribute load
 app.get('*', (req, res) => {
